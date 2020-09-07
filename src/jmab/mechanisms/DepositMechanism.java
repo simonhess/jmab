@@ -33,6 +33,7 @@ public class DepositMechanism extends AbstractMechanism implements Mechanism {
 
 	private int idDepositsSM;
 	private int idCashSM;
+	private int idReservesSM;
 
 	/**
 	 * 
@@ -77,6 +78,20 @@ public class DepositMechanism extends AbstractMechanism implements Mechanism {
 	public void setIdCashSM(int idCashSM) {
 		this.idCashSM = idCashSM;
 	}
+	
+	/**
+	 * @return the idReservesSM
+	 */
+	public int getIdReservesSM() {
+		return idReservesSM;
+	}
+	
+	/**
+	 * @param idReservesSM the idReservesSM to set
+	 */
+	public void setIdReservesSM(int idReservesSM) {
+		this.idReservesSM = idReservesSM;
+	}
 
 	/* (non-Javadoc)
 	 * @see jmab.mechanisms.Mechanism#execute(jmab.agents.MacroAgent, jmab.agents.MacroAgent, int)
@@ -106,6 +121,7 @@ public class DepositMechanism extends AbstractMechanism implements Mechanism {
 	public void execute(DepositDemander depositor, DepositSupplier bank, int idMarket) {
 		double cashAmount=depositor.getCashAmount();
 		double depositAmount=depositor.getDepositAmount();
+		double reservesAmount=depositor.getReservesAmount();
 		double interestRate=bank.getDepositInterestRate(depositor, depositAmount); 
 		List<Item> previousDeposits=depositor.getItemsStockMatrix(true, idDepositsSM);
 		Deposit deposit = (Deposit)depositor.getItemStockMatrix(true, this.idDepositsSM, bank);
@@ -136,6 +152,7 @@ public class DepositMechanism extends AbstractMechanism implements Mechanism {
 			}
 		}
 		Cash cashHeld=(Cash) depositor.getItemStockMatrix(true, idCashSM);
+		Deposit reservesHeld = (Deposit) depositor.getItemStockMatrix(true, idReservesSM);
 		if (cashHeld.getValue()!=cashAmount){
 			double cashBias=cashHeld.getValue()-cashAmount;
 			deposit.setValue(deposit.getValue()+cashBias);

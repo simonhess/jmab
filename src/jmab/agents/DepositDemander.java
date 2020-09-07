@@ -31,6 +31,11 @@ public interface DepositDemander extends MacroAgent {
 	 * @return the amount of money to be held in cash.
 	 */
 	public double getCashAmount();
+	
+	/**
+	 * @return the amount of money to be held in reserves.
+	 */
+	public double getReservesAmount();
 
 	public void interestPaid(double interests);
 
