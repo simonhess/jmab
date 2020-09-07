@@ -153,13 +153,25 @@ public class DepositMechanism extends AbstractMechanism implements Mechanism {
 		}
 		Cash cashHeld=(Cash) depositor.getItemStockMatrix(true, idCashSM);
 		Deposit reservesHeld = (Deposit) depositor.getItemStockMatrix(true, idReservesSM);
+		// Transfer all cash to deposit account
+		if (cashHeld.getValue()>=0){
+			LiabilitySupplier centBank = (LiabilitySupplier) cashHeld.getLiabilityHolder();
+			centBank.transfer(cashHeld, deposit, cashHeld.getValue());
+		}
+		// Transfer all reserves to deposit account
+		if (reservesHeld.getValue()>=0){
+			LiabilitySupplier centBank = (LiabilitySupplier) cashHeld.getLiabilityHolder();
+			centBank.transfer(reservesHeld, deposit, reservesHeld.getValue());
+		}
+		// Convert deposits to cash according to preferences
 		if (cashHeld.getValue()!=cashAmount){
-			double cashBias=cashHeld.getValue()-cashAmount;
-			deposit.setValue(deposit.getValue()+cashBias);
-			cashHeld.setValue(cashHeld.getValue()-cashBias);
-			LiabilitySupplier depBank = (LiabilitySupplier) deposit.getLiabilityHolder();
-			Item depBankCash=depBank.getCounterpartItem(deposit, cashHeld);
-			depBankCash.setValue(depBankCash.getValue()+cashBias);
+			LiabilitySupplier depBank = (LiabilitySupplier) cashHeld.getLiabilityHolder();
+			depBank.transfer(deposit, cashHeld, cashAmount);
+		}
+		// Convert deposits to reserves according to preferences
+		if (reservesHeld.getValue()!=reservesAmount){
+			LiabilitySupplier depBank = (LiabilitySupplier) cashHeld.getLiabilityHolder();
+			depBank.transfer(deposit, reservesHeld, reservesAmount);
 		}
 		depositor.setActive(false, idMarket);
 	}
