@@ -92,35 +92,8 @@ public abstract class AbstractMechanism implements Mechanism {
 				amountRaised+=transferAmount;
 				//who is the supplier of the paying stock?
 				LiabilitySupplier payingSupplier = (LiabilitySupplier) payingStock.getLiabilityHolder();
-				// Case c. If the paying stock and the target stock are of the same type, then ask the liability supplier 
-				// to do a transfer
-				if(payingStock.getSMId()==targetStock.getSMId()&&payingStock!=targetStock){
-					payingSupplier.transfer(payingStock, targetStock, transferAmount);
-				}else{
-					targetStock.setValue(targetStock.getValue()+transferAmount);
-					payingStock.setValue(payingStock.getValue()-transferAmount);
-					// Check whether we are the situation of a triangle (that is only one balancing stock, typically 
-					// the case of case a) or if the situation is a rectangle (2 different balancing stocks, case b).
-					LiabilitySupplier targetSupplier = (LiabilitySupplier) targetStock.getLiabilityHolder();
-					Item balancingStock=payingSupplier.getCounterpartItem(payingStock, targetStock);
-					Item otherBalancingStock=targetSupplier.getCounterpartItem(targetStock, payingStock);
-					if(balancingStock==otherBalancingStock){
-						//If triangle (case a), update only one stock (+ or - depending on asset or liability)
-						if(balancingStock.getAssetHolder()==payingSupplier)
-							balancingStock.setValue(balancingStock.getValue()-transferAmount);
-						else
-							balancingStock.setValue(balancingStock.getValue()+transferAmount);
-					}else{
-						//If rectangle (case b), update two stocks (+ or - depending on asset or liability)
-						if(balancingStock.getAssetHolder()==payingSupplier){
-							balancingStock.setValue(balancingStock.getValue()-transferAmount);
-							otherBalancingStock.setValue(otherBalancingStock.getValue()+transferAmount);
-						}else{
-							balancingStock.setValue(balancingStock.getValue()+transferAmount);
-							otherBalancingStock.setValue(otherBalancingStock.getValue()-transferAmount);
-						}
-					}
-				}
+				// Do the transfer
+				payingSupplier.transfer(payingStock, targetStock, transferAmount);
 			}
 		}
 	}
