@@ -154,23 +154,23 @@ public class DepositMechanism extends AbstractMechanism implements Mechanism {
 		Cash cashHeld=(Cash) depositor.getItemStockMatrix(true, idCashSM);
 		Deposit reservesHeld = (Deposit) depositor.getItemStockMatrix(true, idReservesSM);
 		// Transfer all cash to deposit account
-		if (cashHeld.getValue()>=0){
+		if (cashHeld.getValue()>0){
 			LiabilitySupplier centBank = (LiabilitySupplier) cashHeld.getLiabilityHolder();
 			centBank.transfer(cashHeld, deposit, cashHeld.getValue());
 		}
 		// Transfer all reserves to deposit account
-		if (reservesHeld.getValue()>=0){
-			LiabilitySupplier centBank = (LiabilitySupplier) cashHeld.getLiabilityHolder();
+		if (reservesHeld.getValue()>0){
+			LiabilitySupplier centBank = (LiabilitySupplier) reservesHeld.getLiabilityHolder();
 			centBank.transfer(reservesHeld, deposit, reservesHeld.getValue());
 		}
 		// Convert deposits to cash according to preferences
 		if (cashHeld.getValue()!=cashAmount){
-			LiabilitySupplier depBank = (LiabilitySupplier) cashHeld.getLiabilityHolder();
+			LiabilitySupplier depBank = (LiabilitySupplier) deposit.getLiabilityHolder();
 			depBank.transfer(deposit, cashHeld, cashAmount);
 		}
 		// Convert deposits to reserves according to preferences
 		if (reservesHeld.getValue()!=reservesAmount){
-			LiabilitySupplier depBank = (LiabilitySupplier) cashHeld.getLiabilityHolder();
+			LiabilitySupplier depBank = (LiabilitySupplier) deposit.getLiabilityHolder();
 			depBank.transfer(deposit, reservesHeld, reservesAmount);
 		}
 		depositor.setActive(false, idMarket);
