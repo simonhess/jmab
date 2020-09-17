@@ -72,12 +72,13 @@ public class ReservesMechanism extends AbstractMechanism implements Mechanism {
 	public void execute (CreditDemander bank, CreditSupplier centralBank, int idMarket){
 		double advancesDemanded=bank.getLoanRequirement(this.idAdvancesSM);
 		double repo=centralBank.getInterestRate(this.idAdvancesSM, bank, advancesDemanded, 1); //borrowing by banks from CB are usually on a short-term basis, hence lenght=1
+		double reserveInterestRate= centralBank.getDepositInterestRate(null, 0);
 		Loan advances = new Loan(advancesDemanded, centralBank, bank, repo,0, bank.decideLoanAmortizationType(this.idAdvancesSM), 1); //borrowing by banks from CB are usually on a short-term basis, hence lenght=1
 		centralBank.addItemStockMatrix(advances, true, this.idAdvancesSM);
 		bank.addItemStockMatrix(advances, false, this.idAdvancesSM);
 		Deposit depositCB = (Deposit)bank.getItemStockMatrix(true, this.idDepositsCBSM, centralBank);
 		if(depositCB==null){
-			depositCB=new Deposit(advancesDemanded, bank,centralBank,0); //bank's deposits at the CB do not bring any interest
+			depositCB=new Deposit(advancesDemanded, bank,centralBank,reserveInterestRate); //bank's deposits at the CB do not bring any interest
 			centralBank.addItemStockMatrix(depositCB, false, idDepositsCBSM);
 			bank.addItemStockMatrix(depositCB, true, idDepositsCBSM);
 		}else{
