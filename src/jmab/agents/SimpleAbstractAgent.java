@@ -376,9 +376,9 @@ MacroAgent, EventListener {
 			aValue+=aVal;
 			lValue+=lVal;
 		}
-		bs[0][numAss+1]="Net Worth";
-		bs[1][numAss+1]="0";
-		bs[2][numAss+1]=String.valueOf(aValue-lValue);
+		bs[0][numAss]="Net Worth";
+		bs[1][numAss]="0";
+		bs[2][numAss]=String.valueOf(aValue-lValue);
 		return bs;
 	}
 
