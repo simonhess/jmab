@@ -15,10 +15,15 @@
 package jmab.strategies;
 
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.List;
 
 import jmab.agents.AbstractBank;
 import jmab.agents.ProfitsTaxPayer;
+import jmab.agents.SimpleAbstractAgent;
 import jmab.population.MacroPopulation;
+import jmab.stockmatrix.Item;
+import net.sourceforge.jabm.agent.Agent;
 import net.sourceforge.jabm.strategy.AbstractStrategy;
 
 /**
@@ -32,8 +37,8 @@ public class ProfitsWealthTaxStrategy extends AbstractStrategy implements TaxPay
 	private double profitTaxRate;
 	private double maxProfitTaxRate;
 	private double minProfitTaxRate;
-	private int depositId;
-	
+	private int[] liquidAssetsId;
+
 	/* (non-Javadoc)
 	 * @see jmab.strategies.TaxPayerStrategy#computeTaxes()
 	 */
@@ -46,7 +51,19 @@ public class ProfitsWealthTaxStrategy extends AbstractStrategy implements TaxPay
 			return Math.max(wealthTaxRate*wealth+profitTaxRate*profits, 0);
 		}
 		else{
-			if (wealthTaxRate*wealth+profitTaxRate*profits>taxPayer.getItemStockMatrix(true, depositId).getValue()){
+			SimpleAbstractAgent agent = (SimpleAbstractAgent) this.getAgent();
+			List<Item> payingStocks=new ArrayList<Item>();
+			payingStocks.addAll(agent.getItemsStockMatrix(true, liquidAssetsId[0]));
+			payingStocks.add(payingStocks.size()-1, agent.getItemStockMatrix(true,liquidAssetsId[1]));
+			payingStocks.add(payingStocks.size()-1, agent.getItemStockMatrix(true,liquidAssetsId[2]));
+			
+			double liquidity = 0;
+			
+			for(Item stock: payingStocks) {
+				liquidity += stock.getValue();
+			}
+			
+			if (wealthTaxRate*wealth+profitTaxRate*profits>liquidity){
 				return 0;
 			}
 			else{
@@ -54,6 +71,14 @@ public class ProfitsWealthTaxStrategy extends AbstractStrategy implements TaxPay
 			}
 		}
 		
+	}
+	
+	public int[] getLiquidAssetsId() {
+		return liquidAssetsId;
+	}
+
+	public void setLiquidAssetsId(int[] liquidAssetsId) {
+		this.liquidAssetsId = liquidAssetsId;
 	}
 
 	/**
@@ -101,20 +126,6 @@ public class ProfitsWealthTaxStrategy extends AbstractStrategy implements TaxPay
 	}
 
 	/**
-	 * @return the depositId
-	 */
-	public int getDepositId() {
-		return depositId;
-	}
-
-	/**
-	 * @param depositId the depositId to set
-	 */
-	public void setDepositId(int depositId) {
-		this.depositId = depositId;
-	}
-
-	/**
 	 * Generate the byte array structure of the strategy. The structure is as follow:
 	 * [wealthTaxRate][profitTaxRate][depositId]
 	 * @return the byte array content
@@ -124,7 +135,6 @@ public class ProfitsWealthTaxStrategy extends AbstractStrategy implements TaxPay
 		ByteBuffer buf = ByteBuffer.allocate(20);
 		buf.putDouble(wealthTaxRate);
 		buf.putDouble(profitTaxRate);
-		buf.putInt(depositId);
 		return buf.array();
 	}
 
@@ -140,7 +150,6 @@ public class ProfitsWealthTaxStrategy extends AbstractStrategy implements TaxPay
 		ByteBuffer buf = ByteBuffer.wrap(content);
 		this.wealthTaxRate = buf.getDouble();
 		this.profitTaxRate = buf.getDouble();
-		this.depositId = buf.getInt();
 	}
 
 	/* (non-Javadoc)
