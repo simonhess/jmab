@@ -14,6 +14,7 @@
  */
 package jmab.simulations;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import jmab.agents.MacroAgent;
@@ -21,9 +22,12 @@ import jmab.events.MarketTicEvent;
 import jmab.init.MarketAgentInitialiser;
 import jmab.mechanisms.Mechanism;
 import jmab.mixing.TwoStepMarketMixer;
+import jmab.population.MacroPopulation;
 import jmab.population.MarketPopulation;
 import net.sourceforge.jabm.EventScheduler;
 import net.sourceforge.jabm.SimulationController;
+import net.sourceforge.jabm.agent.Agent;
+import net.sourceforge.jabm.agent.AgentList;
 import net.sourceforge.jabm.event.EventListener;
 import net.sourceforge.jabm.event.SimEvent;
 
@@ -36,8 +40,8 @@ public abstract class AbstractTwoStepMarketSimulation implements MarketSimulatio
 
 	protected Mechanism transaction;
 	protected MacroSimulation simulation;
-	protected int sellersId;
-	protected int buyersId;
+	protected int[] sellersId;
+	protected int[] buyersId;
 	protected int marketId;
 	protected TwoStepMarketMixer mixer;
 	protected MarketPopulation population;
@@ -69,7 +73,7 @@ public abstract class AbstractTwoStepMarketSimulation implements MarketSimulatio
 	 * @param initialiser
 	 */
 	public AbstractTwoStepMarketSimulation(Mechanism transaction,
-			MacroSimulation simulation, int sellersId, int buyersId,
+			MacroSimulation simulation, int [] sellersId, int [] buyersId,
 			int marketId, TwoStepMarketMixer mixer, MarketPopulation population,
 			SimulationController scheduler, int firstTicId, int secondTicId,
 			MarketAgentInitialiser initialiser) {
@@ -80,7 +84,7 @@ public abstract class AbstractTwoStepMarketSimulation implements MarketSimulatio
 		this.buyersId = buyersId;
 		this.marketId = marketId;
 		this.mixer = mixer;
-		this.population = population;
+		this.population = getPopulationInit();
 		this.scheduler = scheduler;
 		this.firstTicId = firstTicId;
 		this.secondTicId = secondTicId;
@@ -104,28 +108,28 @@ public abstract class AbstractTwoStepMarketSimulation implements MarketSimulatio
 	/**
 	 * @return the sellersId
 	 */
-	public int getSellersId() {
+	public int[] getSellersId() {
 		return sellersId;
 	}
 
 	/**
 	 * @param sellersId the sellersId to set
 	 */
-	public void setSellersId(int sellersId) {
+	public void setSellersId(int[] sellersId) {
 		this.sellersId = sellersId;
 	}
 
 	/**
 	 * @return the buyersId
 	 */
-	public int getBuyersId() {
+	public int[] getBuyersId() {
 		return buyersId;
 	}
 
 	/**
 	 * @param buyersId the buyersId to set
 	 */
-	public void setBuyersId(int buyersId) {
+	public void setBuyersId(int[] buyersId) {
 		this.buyersId = buyersId;
 	}
 
@@ -147,6 +151,18 @@ public abstract class AbstractTwoStepMarketSimulation implements MarketSimulatio
 	 * @return the population
 	 */
 	public MarketPopulation getPopulationInit() {
+		MarketPopulation population = new MarketPopulation();
+		MacroPopulation macroPop = (MacroPopulation)simulation.getPopulation();
+		ArrayList<Agent> buyers = new ArrayList<Agent>();
+		for(int id:buyersId){
+			buyers.addAll(macroPop.getPopulation(id).getAgents());
+		}
+		population.setBuyersList(new AgentList(buyers));
+		ArrayList<Agent> sellers = new ArrayList<Agent>();
+		for(int id:sellersId){
+			sellers.addAll(macroPop.getPopulation(id).getAgents());
+		}
+		population.setSellersList(new AgentList(sellers));
 		return population;
 	}
 
@@ -315,6 +331,7 @@ public abstract class AbstractTwoStepMarketSimulation implements MarketSimulatio
 	@Override
 	public void setSimulation(MacroSimulation simulation) {
 		this.simulation = simulation;
+		this.population = getPopulationInit();
 	}
 
 	/* (non-Javadoc)

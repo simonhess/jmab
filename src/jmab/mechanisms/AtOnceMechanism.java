@@ -63,6 +63,8 @@ public class AtOnceMechanism extends AbstractGoodMechanism implements
 		List<Item> payingStocks = goodDemander.getPayingStocks(idGood,payableStock);
 		//2.3 Get the first occurrence of an item of the same sort than the payable stock within the paying stocks
 		Item targetStock=null;
+		
+		if(payingStocks.size()>1) {
 		for(Item item:payingStocks){
 			if(item.getSMId()==payableStock.getSMId()){
 				targetStock=item;
@@ -70,7 +72,11 @@ public class AtOnceMechanism extends AbstractGoodMechanism implements
 			}
 		}
 		//3. Re-allocation of funds from paying stocks towards the targetStock
+		
 		this.reallocateLiquidity(totalAmount, payingStocks, targetStock);
+		}else {
+			targetStock=payingStocks.get(0);
+		}
 //		if(idGoodSM==StaticValues.SM_CONSGOOD){
 //			System.out.print("In the at once mechanism before");
 //			System.out.println(targetStock.getValue());
