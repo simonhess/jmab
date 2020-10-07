@@ -38,6 +38,8 @@ public interface DepositDemander extends MacroAgent {
 	public double getReservesAmount();
 
 	public void interestPaid(double interests);
+	
+	public void reservesInterestPaid(double interests);
 
 
 }
